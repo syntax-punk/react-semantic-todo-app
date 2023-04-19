@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TodoForm } from "./components/TodoForm";
 import { FilterButton } from "./components/FilterButton";
 import { Todo } from "./components/Todo";
-import { v4 as uuid } from "uuid";
 import { Segment, Container, Header, List } from "semantic-ui-react";
-
+import { fetchData, addTodoToDb, deleteTodoFromDb, updateTodoInDb } from "./utils/dbRequests";
 
 const TODOS_FILTER = {
   All: () => true,
@@ -15,32 +14,74 @@ const TODOS_FILTER = {
 const FILTER_LABELS = Object.keys(TODOS_FILTER);
 
 const App = (props) => {
-  const [todos, setTodos] = useState(props.todos);
+  const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState("All");
 
-  const toggleTaskCompleted = (id) => {
-    const updatedTodos = todos.map((todo) => {
-      if (id === todo.id) {
-        return { ...todo, completed: !todo.completed };
-      }
-      return todo;
+  useEffect(function fetchTodosOnMount() {
+    fetchData()
+    .then((todos) => {
+      setTodos(todos);
+    })
+    .catch((error) => {
+      console.log("Error getting documents: ", error);
     });
-    setTodos(updatedTodos);
+  }, []);
+
+  const addTodo = (name) => {
+    const newTodoItem = { name: name, completed: false };
+
+    addTodoToDb(newTodoItem)
+    .then((docRef) => {
+      setTodos([...todos, {...newTodoItem, id: docRef.id}]);
+    });
   }
 
   const deleteTodo = (id) => {
-    const remainingTasks = todos.filter((todo) => id !== todo.id);
-    setTodos(remainingTasks);
+    const todoToRemove = todos.find((todo) => todo.id === id);
+
+    if (!todoToRemove) return;
+
+    deleteTodoFromDb(todoToRemove.id)
+    .then(() => {
+      const remainingTodos = todos.filter((todo) => id !== todo.id);
+      setTodos(remainingTodos);
+    });
   }
 
   const editTodo = (id, newName) => {
-    const editedTaskList = todos.map((todo) => {
+    let updatedTodo;
+    const updatedTodoList = todos.map((todo) => {
       if (id === todo.id) {
-        return { ...todo, name: newName };
+        updatedTodo = { ...todo, name: newName };
+        return updatedTodo;
       }
       return todo;
     });
-    setTodos(editedTaskList);
+
+    if (!updatedTodo) return;
+
+    updateTodoInDb(updatedTodo.id, { name: updatedTodo.name })
+    .then(() => {
+      setTodos(updatedTodoList);
+    });
+  }
+
+  const toggleTaskCompleted = (id) => {
+    let updatedTodo;
+    const updatedTodoList = todos.map((todo) => {
+      if (id === todo.id) {
+        updatedTodo = { ...todo, completed: !todo.completed };
+        return updatedTodo;
+      }
+      return todo;
+    });
+
+    if (!updatedTodo) return;
+
+    updateTodoInDb(updatedTodo.id, { completed: updatedTodo.completed })
+    .then(() => {
+      setTodos(updatedTodoList);
+    });
   }
 
   const TodosList = todos
@@ -66,10 +107,6 @@ const App = (props) => {
     />
   ));
 
-  const addTodo = (name) => {
-    const newTask = { id: uuid(), name: name, completed: false };
-    setTodos([...todos, newTask]);
-  }
 
   const tasksNoun = TodosList.length !== 1 ? "tasks" : "task";
 
