@@ -1,0 +1,33 @@
+body {
+  width: 100%;
+  height: 100%;
+}
+
+#root {
+  position: relative;
+  display: grid;
+  grid-template-rows: 64px auto 64px;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 32px 0;
+}
+
+.todo-item-view {
+  display: grid;
+  grid-template-columns: 4fr 1fr 1fr;
+  grid-gap: 8px;
+  align-items: center;
+}
+
+.todo-item {
+  cursor: pointer;
+  color: #000000;
+}
+
+.item-completed {
+  text-decoration: line-through;
+  font-style: italic;
+  font-weight: 400 !important;
+  color: #909090 !important;
+}
