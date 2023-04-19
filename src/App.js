@@ -76,7 +76,7 @@ const App = (props) => {
   return (
     <>
       <Header as="h1" textAlign="center">TODO LIST:</Header>
-      <Segment compact className="centered" style={{ padding: '32px', width: '640px' }}>
+      <Segment compact className="centered main-segment">
         <TodoForm addTodo={addTodo} />
         <Container fluid textAlign="center">{FilterButtons}</Container>
         <Container fluid style={{ marginTop: '32px' }}>
@@ -88,9 +88,11 @@ const App = (props) => {
             content={`${TodosList.length} ${tasksNoun} remaining`}
             textAlign="center"
           />
-          <List divided relaxed='very' style={{ marginTop: '32px' }}>
-            {TodosList}
-          </List>
+          <Segment style={{ marginTop: '24px' }}>
+            <List divided relaxed='very'>
+              {TodosList}
+            </List>
+          </Segment>
         </Container>
       </Segment>
     </>
