@@ -3,7 +3,17 @@ import { List, Input, Header, Button, Form, Segment } from "semantic-ui-react";
 
 
 const Todo = (props) => {
+  const { name,
+    completed,
+    id,
+    toggleTodoCompleted,
+    deleteTodo,
+    editTodo
+  } = props;
+
   const [isEditing, setEditing] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [newName, setNewName] = useState('');
 
 
@@ -11,20 +21,28 @@ const Todo = (props) => {
     setNewName(e.target.value);
   }
 
-  function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setProcessing(true);
     const todoName = newName.trim();
     if (!todoName) return;
 
-    props.editTask(props.id, newName);
+    await editTodo(id, newName);
     setNewName("");
     setEditing(false);
+    setProcessing(false);
+  }
+
+  const handleDeleteTodo = async (id) => {
+    setRemoving(true);
+    await deleteTodo(id);
+    setRemoving(false);
   }
 
   const EditItem = (
     <Segment>
       <Form onSubmit={handleSubmit}>
-        <Header as="h3" sub content={`Edit Todo: ${props.name}`} />
+        <Header as="h3" sub content={`Edit Todo: ${name}`} />
         <Form.Group>
           <Input
             style={{ width: '100%' }}
@@ -32,11 +50,12 @@ const Todo = (props) => {
             name="text"
             autoComplete="off"
             value={newName}
-            placeholder={props.name}
-            onChange={handleChange} />
+            placeholder={name}
+            onChange={handleChange}
+            disabled={processing} />
         </Form.Group>
         <Form.Group>
-          <Button positive type="submit" content="Save" />
+          <Button positive type="submit" content="Save" loading={processing} />
           <Button onClick={() => setEditing(false)} content="Cancel" />
         </Form.Group>
       </Form>
@@ -47,19 +66,20 @@ const Todo = (props) => {
       <List.Content verticalAlign="middle" className="todo-item-view">
           <Header
             as="h3"
-            content={props.name}
-            className={`todo-item ${props.completed ? "item-completed" : ""}`}
-            onClick={() => props.toggleTaskCompleted(props.id)} />
+            content={name}
+            className={`todo-item ${completed ? "item-completed" : ""}`}
+            onClick={() => toggleTodoCompleted(id)} />
           <Button
-            onClick={() => props.deleteTask(props.id)}
+            onClick={() => handleDeleteTodo(id)}
             floated="right"
             negative
-            icon="trash" />
+            icon="trash"
+            loading={removing} />
           <Button
             onClick={() => setEditing(true)}
             floated="right"
             icon="edit"
-            disabled={props.completed}
+            disabled={completed}
             color="blue" />
       </List.Content>
   );

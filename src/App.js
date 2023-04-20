@@ -40,19 +40,17 @@ const App = (props) => {
     setTodos([...todos, {...newTodoItem, id: docRef.id}]);
   }
 
-  const deleteTodo = (id) => {
+  const deleteTodo = async (id) => {
     const todoToRemove = todos.find((todo) => todo.id === id);
 
     if (!todoToRemove) return;
 
-    deleteTodoFromDb(todoToRemove.id)
-    .then(() => {
-      const remainingTodos = todos.filter((todo) => id !== todo.id);
-      setTodos(remainingTodos);
-    });
+    await deleteTodoFromDb(todoToRemove.id)
+    const remainingTodos = todos.filter((todo) => id !== todo.id);
+    setTodos(remainingTodos);
   }
 
-  const editTodo = (id, newName) => {
+  const editTodo = async (id, newName) => {
     let updatedTodo;
     const updatedTodoList = todos.map((todo) => {
       if (id === todo.id) {
@@ -64,10 +62,8 @@ const App = (props) => {
 
     if (!updatedTodo) return;
 
-    updateTodoInDb(updatedTodo.id, { name: updatedTodo.name })
-    .then(() => {
-      setTodos(updatedTodoList);
-    });
+    await updateTodoInDb(updatedTodo.id, { name: updatedTodo.name })
+    setTodos(updatedTodoList);
   }
 
   const toggleTaskCompleted = (id) => {
@@ -96,9 +92,9 @@ const App = (props) => {
         name={todo.name}
         completed={todo.completed}
         key={todo.id}
-        toggleTaskCompleted={toggleTaskCompleted}
-        deleteTask={deleteTodo}
-        editTask={editTodo}
+        toggleTodoCompleted={toggleTaskCompleted}
+        deleteTodo={deleteTodo}
+        editTodo={editTodo}
       />
     ));
 
