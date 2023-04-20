@@ -1,10 +1,21 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { GoogleAuthProvider, EmailAuthProvider, getAuth } from "firebase/auth";
+import * as firebaseui from 'firebaseui'
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-let fireApp, fireDb, fireAuth;
+let fireApp, fireDb, fireAuth, fireUiAuth;
+
+const uiConfig = {
+  signInFlow: 'popup',
+  signInSuccessUrl: '/todos',
+  signInOptions: [
+    GoogleAuthProvider.PROVIDER_ID,
+    EmailAuthProvider.PROVIDER_ID,
+  ],
+};
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -21,8 +32,13 @@ const getFireAgents = () => {
     fireApp = initializeApp(firebaseConfig);
     fireDb = getFirestore(fireApp);
     fireAuth = getAuth(fireApp);
+    fireUiAuth = new firebaseui.auth.AuthUI(fireAuth);
   }
-  return { fireApp, fireDb, fireAuth };
+  return { fireApp, fireDb, fireAuth, fireUiAuth };
 }
 
-export { getFireAgents }
+const getFireConfigs = () => {
+  return { firebaseConfig, uiConfig };
+}
+
+export { getFireAgents, getFireConfigs }

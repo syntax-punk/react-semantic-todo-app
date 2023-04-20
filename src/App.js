@@ -29,7 +29,7 @@ const App = () => {
     return () => { unsubscribe() };
   }, [user])
 
-  if (user) {
+  if (user && window.location.pathname === '/todos') {
     return (
       <>
         <SignOut />

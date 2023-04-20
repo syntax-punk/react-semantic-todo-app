@@ -1,34 +1,26 @@
-import React from "react";
-import { Button, Container } from "semantic-ui-react";
-import { signInFlow } from "../utils/authRequests";
+import React, { useEffect } from "react";
+import { getFireAgents, getFireConfigs } from "../api/fireAgents";
+import { Header, Icon, Segment, Container } from 'semantic-ui-react'
 
 const SignInPage = () => {
 
-  const handleSignIn = async () => {
-    const user = await signInFlow();
-    console.log(user);
-  }
+  const { fireUiAuth } = getFireAgents();
+  const { uiConfig } = getFireConfigs();
+
+  useEffect(function onMount() {
+    fireUiAuth.start('#firebaseui-auth-container', uiConfig);
+  })
+
 
   return (
-    <Container>
-      <Button content="Sign In" onClick={handleSignIn} />
-    </Container>
-  )
-  // const uiConfig = {
-  //   signInFlow: 'popup',
-  //   signInSuccessUrl: '/',
-  //   signInOptions: [
-  //     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-  //     firebase.auth.EmailAuthProvider.PROVIDER_ID,
-  //   ],
-  // };
-
-  // const ui = new firebaseui.auth.AuthUI(firebase.auth());
-  // ui.start('#firebaseui-auth-container', uiConfig);
-
-  // return (
-  //   <div id="firebaseui-auth-container"></div>
-  // );
+    <Segment className="sign-in-segment" textAlign="center" compact raised>
+        <Header icon>
+          <Icon name='sign in' />
+          Sign in to the app
+        </Header>
+        <div id="firebaseui-auth-container"></div>
+    </Segment>
+  );
 
 }
 
