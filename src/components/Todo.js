@@ -54,13 +54,13 @@ const Todo = (props) => {
             onClick={() => props.deleteTask(props.id)}
             floated="right"
             negative
-            icon="trash"
-            disabled={props.completed} />
+            icon="trash" />
           <Button
             onClick={() => setEditing(true)}
             floated="right"
             icon="edit"
-            disabled={props.completed} />
+            disabled={props.completed}
+            color="blue" />
       </List.Content>
   );
 

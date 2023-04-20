@@ -2,15 +2,19 @@ import React, { useState } from "react";
 import { Button, Form, Header, Input } from "semantic-ui-react";
 
 const TodoForm = (props) => {
+  const [processing, setProcessing] = useState(false);
+
+  const { addTodo } = props;
   const [name, setName] = useState('');
 
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const todoName = name.trim();
     if (!todoName) return;
 
-    props.addTodo(todoName);
+    setProcessing(true);
+    await addTodo(todoName);
+    setProcessing(false);
     setName("");
   }
 
@@ -30,10 +34,11 @@ const TodoForm = (props) => {
           autoComplete="off"
           value={name}
           onChange={handleChange}
+          disabled={processing}
         />
       </Form.Group>
       <Form.Group>
-        <Button positive type="submit" content="Add Todo" />
+        <Button positive type="submit" content="Add Todo" loading={processing} />
       </Form.Group>
     </Form>
   );

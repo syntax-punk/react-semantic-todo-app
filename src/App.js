@@ -4,6 +4,7 @@ import { FilterButton } from "./components/FilterButton";
 import { Todo } from "./components/Todo";
 import { Segment, Container, Header, List } from "semantic-ui-react";
 import { fetchData, addTodoToDb, deleteTodoFromDb, updateTodoInDb } from "./utils/dbRequests";
+import { LoadingMessage } from "./components/LoadingMessage";
 
 const TODOS_FILTER = {
   All: () => true,
@@ -16,24 +17,27 @@ const FILTER_LABELS = Object.keys(TODOS_FILTER);
 const App = (props) => {
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState("All");
+  const [fetchingData, setFetchingData] = useState(false);
 
   useEffect(function fetchTodosOnMount() {
+    setFetchingData(true);
     fetchData()
     .then((todos) => {
       setTodos(todos);
     })
     .catch((error) => {
       console.log("Error getting documents: ", error);
+    })
+    .finally(() => {
+      setFetchingData(false);
     });
   }, []);
 
-  const addTodo = (name) => {
+  const addTodo = async (name) => {
     const newTodoItem = { name: name, completed: false };
 
-    addTodoToDb(newTodoItem)
-    .then((docRef) => {
-      setTodos([...todos, {...newTodoItem, id: docRef.id}]);
-    });
+    const docRef = await addTodoToDb(newTodoItem)
+    setTodos([...todos, {...newTodoItem, id: docRef.id}]);
   }
 
   const deleteTodo = (id) => {
@@ -109,6 +113,7 @@ const App = (props) => {
 
 
   const tasksNoun = TodosList.length !== 1 ? "tasks" : "task";
+  const listTitle = `${TodosList.length} ${tasksNoun} remaining`;
 
   return (
     <>
@@ -117,19 +122,27 @@ const App = (props) => {
         <TodoForm addTodo={addTodo} />
         <Container fluid textAlign="center">{FilterButtons}</Container>
         <Container fluid style={{ marginTop: '32px' }}>
-          <Header
-            as="h2"
-            id="list-heading"
-            tabIndex="-1"
-            color="teal"
-            content={`${TodosList.length} ${tasksNoun} remaining`}
-            textAlign="center"
-          />
-          <Segment style={{ marginTop: '24px' }}>
-            <List divided relaxed='very'>
-              {TodosList}
-            </List>
-          </Segment>
+          {
+            fetchingData ? (
+              <LoadingMessage />
+            ) : (
+              <>
+                <Header
+                  as="h2"
+                  id="list-heading"
+                  tabIndex="-1"
+                  color="teal"
+                  content={listTitle}
+                  textAlign="center"
+                />
+                <Segment style={{ marginTop: '24px' }}>
+                  <List divided relaxed='very'>
+                    {TodosList}
+                  </List>
+                </Segment>
+              </>
+            )
+          }
         </Container>
       </Segment>
     </>
