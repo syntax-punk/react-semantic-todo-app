@@ -1,7 +1,7 @@
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { getDbTools } from "../api/db";
+import { getFireAgents } from "../api/fireAgents";
 
-const { fireDb: db } = getDbTools();
+const { fireDb: db } = getFireAgents();
 
 const fetchData = async () => {
   const querySnapshot = await getDocs(collection(db, "todos"));

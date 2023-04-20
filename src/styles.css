@@ -37,3 +37,9 @@ body {
   font-weight: 400 !important;
   color: #909090 !important;
 }
+
+.sign-out-btn {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+}
