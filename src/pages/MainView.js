@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { TodoForm } from "../components/TodoForm";
 import { FilterButton } from "../components/FilterButton";
 import { Todo } from "../components/Todo";
 import { Segment, Container, Header, List } from "semantic-ui-react";
-import { fetchData, addTodoToDb, deleteTodoFromDb, updateTodoInDb } from "../utils/dbRequests";
+import { addTodoToDb, deleteTodoFromDb, updateTodoInDb, subscribeToChangesInDb } from "../utils/dbRequests";
+import { serverTimestamp } from "firebase/firestore";
 import { LoadingMessage } from "../components/LoadingMessage";
 
 const TODOS_FILTER = {
@@ -15,27 +16,37 @@ const TODOS_FILTER = {
 const FILTER_LABELS = Object.keys(TODOS_FILTER);
 
 const MainView = (props) => {
-
+  const { name, uid } = props;
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState("All");
   const [fetchingData, setFetchingData] = useState(false);
+  const initialFetchCompleted = useRef(false);
 
   useEffect(function fetchTodosOnMount() {
-    setFetchingData(true);
-    fetchData()
-    .then((todos) => {
+    if (!initialFetchCompleted.current)
+      setFetchingData(true);
+
+    const unsubscribe = subscribeToChangesInDb(uid, (todos) => {
       setTodos(todos);
-    })
-    .catch((error) => {
-      console.log("Error getting documents: ", error);
-    })
-    .finally(() => {
-      setFetchingData(false);
+      if (!initialFetchCompleted.current) {
+        setFetchingData(false);
+        initialFetchCompleted.current = true;
+      }
     });
-  }, []);
+
+    const cleanup = () => { unsubscribe() };
+
+    return cleanup;
+  }, [uid]);
 
   const addTodo = async (name) => {
-    const newTodoItem = { name: name, completed: false };
+    const newTodoItem = {
+      name,
+      completed: false,
+      uid,
+      createdAt: serverTimestamp(),
+      updatedAt: null
+     };
 
     const docRef = await addTodoToDb(newTodoItem)
     setTodos([...todos, {...newTodoItem, id: docRef.id}]);
@@ -55,7 +66,11 @@ const MainView = (props) => {
     let updatedTodo;
     const updatedTodoList = todos.map((todo) => {
       if (id === todo.id) {
-        updatedTodo = { ...todo, name: newName };
+        updatedTodo = {
+          ...todo,
+          name: newName,
+          updatedAt: serverTimestamp()
+        };
         return updatedTodo;
       }
       return todo;
@@ -63,7 +78,7 @@ const MainView = (props) => {
 
     if (!updatedTodo) return;
 
-    await updateTodoInDb(updatedTodo.id, { name: updatedTodo.name })
+    await updateTodoInDb(updatedTodo.id, { name: updatedTodo.name, updatedAt: updatedTodo.updatedAt })
     setTodos(updatedTodoList);
   }
 
@@ -114,7 +129,7 @@ const MainView = (props) => {
 
   return (
     <>
-      <Header as="h1" textAlign="center">{props.name}'s TODO LIST:</Header>
+      <Header as="h1" textAlign="center">{name}'s TODO LIST:</Header>
       <Segment compact className="centered main-segment">
         <TodoForm addTodo={addTodo} />
         <Container fluid textAlign="center">{FilterButtons}</Container>

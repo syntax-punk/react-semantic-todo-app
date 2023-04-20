@@ -33,7 +33,7 @@ const App = () => {
     return (
       <>
         <SignOut />
-        <MainView name={user.displayName} />
+        <MainView name={user.displayName} uid={user.uid} />
       </>
     )
   }

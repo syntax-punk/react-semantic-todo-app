@@ -1,15 +1,29 @@
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, where, query, onSnapshot } from "firebase/firestore";
 import { getFireAgents } from "../api/fireAgents";
 
-const { fireDb: db } = getFireAgents();
+const { fireDb: db, dbRef } = getFireAgents();
 
-const fetchData = async () => {
-  const querySnapshot = await getDocs(collection(db, "todos"));
+const fetchData = async (uid) => {
+  const dataQuery = query(collection(db, "todos"), where("uid", "==", uid));
+  const querySnapshot = await getDocs(dataQuery);
   const todos = querySnapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
   return todos;
+}
+
+const subscribeToChangesInDb = async (uid, callback) => {
+  const dataQuery = query(collection(db, "todos"), where("uid", "==", uid));
+  const unsubscribe = onSnapshot(dataQuery, (querySnapshot) => {
+    const todos = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    callback(todos);
+  });
+
+  return unsubscribe;
 }
 
 const addTodoToDb = async (todo) => {
@@ -30,4 +44,4 @@ const deleteTodoFromDb = async (id) => {
   console.log("Deleted document with ID: ", docRef.id);
 }
 
-export { fetchData, addTodoToDb, updateTodoInDb, deleteTodoFromDb }
+export { fetchData, subscribeToChangesInDb, addTodoToDb, updateTodoInDb, deleteTodoFromDb }

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { getFireAgents, getFireConfigs } from "../api/fireAgents";
-import { Header, Icon, Segment, Container } from 'semantic-ui-react'
+import { Header, Icon, Segment } from 'semantic-ui-react'
 
 const SignInPage = () => {
 
