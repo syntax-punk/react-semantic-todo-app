@@ -33,13 +33,13 @@ const MainView = (props) => {
         initialFetchCompleted.current = true;
       }
     });
-
+    debugger
     const cleanup = () => { unsubscribe() };
 
     return cleanup;
   }, [uid]);
 
-  const addTodo = async (name) => {
+  const addTodo = (name) => {
     const newTodoItem = {
       name,
       completed: false,
@@ -48,56 +48,29 @@ const MainView = (props) => {
       updatedAt: null
      };
 
-    const docRef = await addTodoToDb(newTodoItem)
-    setTodos([...todos, {...newTodoItem, id: docRef.id}]);
+    addTodoToDb(newTodoItem)
   }
 
-  const deleteTodo = async (id) => {
+  const deleteTodo = (id) => {
     const todoToRemove = todos.find((todo) => todo.id === id);
 
     if (!todoToRemove) return;
 
-    await deleteTodoFromDb(todoToRemove.id)
-    const remainingTodos = todos.filter((todo) => id !== todo.id);
-    setTodos(remainingTodos);
+    deleteTodoFromDb(todoToRemove.id);
   }
 
-  const editTodo = async (id, newName) => {
-    let updatedTodo;
-    const updatedTodoList = todos.map((todo) => {
-      if (id === todo.id) {
-        updatedTodo = {
-          ...todo,
-          name: newName,
-          updatedAt: serverTimestamp()
-        };
-        return updatedTodo;
-      }
-      return todo;
-    });
+  const editTodo = async (id, value) => {
+    const todo = todos.find((todo) => todo.id === id);
+    if (!todo) return;
 
-    if (!updatedTodo) return;
-
-    await updateTodoInDb(updatedTodo.id, { name: updatedTodo.name, updatedAt: updatedTodo.updatedAt })
-    setTodos(updatedTodoList);
+    await updateTodoInDb(todo.id, { name: value, updatedAt: serverTimestamp() })
   }
 
   const toggleTaskCompleted = (id) => {
-    let updatedTodo;
-    const updatedTodoList = todos.map((todo) => {
-      if (id === todo.id) {
-        updatedTodo = { ...todo, completed: !todo.completed };
-        return updatedTodo;
-      }
-      return todo;
-    });
+    const todo = todos.find((todo) => todo.id === id);
+    if (!todo) return;
 
-    if (!updatedTodo) return;
-
-    updateTodoInDb(updatedTodo.id, { completed: updatedTodo.completed })
-    .then(() => {
-      setTodos(updatedTodoList);
-    });
+    updateTodoInDb(todo.id, { completed: !todo.completed });
   }
 
   const TodosList = todos

@@ -13,7 +13,7 @@ const fetchData = async (uid) => {
   return todos;
 }
 
-const subscribeToChangesInDb = async (uid, callback) => {
+const subscribeToChangesInDb = (uid, callback) => {
   const dataQuery = query(collection(db, "todos"), where("uid", "==", uid));
   const unsubscribe = onSnapshot(dataQuery, (querySnapshot) => {
     const todos = querySnapshot.docs.map((doc) => ({
@@ -27,9 +27,10 @@ const subscribeToChangesInDb = async (uid, callback) => {
 }
 
 const addTodoToDb = async (todo) => {
-  const docRef = await addDoc(collection(db, "todos"), todo);
+  const docRef = collection(db, "todos");
+  const result = await addDoc(docRef, todo);
   console.log("Document written with ID: ", docRef.id);
-  return docRef;
+  return result;
 }
 
 const updateTodoInDb = async (id, data) => {
