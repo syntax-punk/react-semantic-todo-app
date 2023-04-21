@@ -33,7 +33,7 @@ const MainView = (props) => {
         initialFetchCompleted.current = true;
       }
     });
-    debugger
+    
     const cleanup = () => { unsubscribe() };
 
     return cleanup;
