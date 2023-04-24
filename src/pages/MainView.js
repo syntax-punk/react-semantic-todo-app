@@ -33,7 +33,7 @@ const MainView = (props) => {
         initialFetchCompleted.current = true;
       }
     });
-    
+
     const cleanup = () => { unsubscribe() };
 
     return cleanup;
@@ -120,10 +120,8 @@ const MainView = (props) => {
                   content={listTitle}
                   textAlign="center"
                 />
-                <Segment style={{ marginTop: '24px' }}>
-                  <List divided relaxed='very'>
-                    {TodosList}
-                  </List>
+                <Segment style={{ marginTop: '24px' }} basic={TodosList.length === 0}>
+                  <List divided relaxed='very'>{TodosList}</List>
                 </Segment>
               </>
             )

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { List, Input, Header, Button, Form, Segment } from "semantic-ui-react";
+import { List, Input, Header, Button, Form, Segment, Checkbox } from "semantic-ui-react";
 
 
 const Todo = (props) => {
@@ -64,6 +64,10 @@ const Todo = (props) => {
 
   const ViewItem = (
       <List.Content verticalAlign="middle" className="todo-item-view">
+          <Checkbox
+            className="todo-check"
+            checked={completed}
+            onClick={() => toggleTodoCompleted(id)} />
           <Header
             as="h3"
             content={name}

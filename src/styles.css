@@ -27,14 +27,19 @@ body {
 
 .todo-item-view {
   display: grid;
-  grid-template-columns: 4fr 1fr 1fr;
+  grid-template-columns: auto 4fr 1fr 1fr;
   grid-gap: 8px;
   align-items: center;
+}
+
+.todo-check.ui.checkbox input:checked~label:after {
+  color: #21ba45;
 }
 
 .todo-item {
   cursor: pointer;
   color: #000000;
+  display: inline;
 }
 
 .item-completed {
