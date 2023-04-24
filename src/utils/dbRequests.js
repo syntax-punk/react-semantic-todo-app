@@ -1,7 +1,7 @@
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, where, query, onSnapshot } from "firebase/firestore";
 import { getFireAgents } from "../api/fireAgents";
 
-const { fireDb: db, dbRef } = getFireAgents();
+const { fireDb: db } = getFireAgents();
 
 const fetchData = async (uid) => {
   const dataQuery = query(collection(db, "todos"), where("uid", "==", uid));
